@@ -48,6 +48,8 @@ rpcpassword=fluffytail
 
 rpcport=82555
 
+addnode=76.95.178.229:17040
+
 addnode=107.170.47.66
 
 addnode=162.243.109.193
