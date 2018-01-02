@@ -1,9 +1,10 @@
 TEMPLATE = app
 TARGET =
-VERSION = 1.0.0
+VERSION = 1.2.0
 INCLUDEPATH += src src/json src/qt
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE BOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN __NO_SYSTEM_INCLUDES
 CONFIG += no_include_pwd
+QT += widgets
 
 win32 {
  LIBS += -lshlwapi
@@ -18,6 +19,15 @@ win32 {
  BDB_LIB_PATH=C:/deps/db/build_unix
  OPENSSL_INCLUDE_PATH=C:/deps/ssl/include
  OPENSSL_LIB_PATH=C:/deps/ssl
+}
+macx {
+ BOOST_LIB_SUFFIX=
+ BOOST_INCLUDE_PATH=/usr/local/Cellar/boost@1.55/1.55.0_1/include
+ BOOST_LIB_PATH=/usr/local/Cellar/boost@1.55/1.55.0_1/lib
+ BDB_INCLUDE_PATH=/usr/local/Cellar/berkeley-db@5.3/5.3.28.NC.brew/include
+ BDB_LIB_PATH=/usr/local/Cellar/berkeley-db@5.3/5.3.28.NC.brew/lib
+ OPENSSL_INCLUDE_PATH=/usr/local/Cellar/openssl/1.0.1j/include
+ OPENSSL_LIB_PATH=/usr/local/Cellar/openssl/1.0.1j/lib
 }
 
 OBJECTS_DIR = build
@@ -295,39 +305,11 @@ OTHER_FILES += \
 
 # platform specific defaults, if not overridden on command line
 isEmpty(BOOST_LIB_SUFFIX) {
-    macx:BOOST_LIB_SUFFIX = -mt
+    macx:BOOST_LIB_SUFFIX =
 }
 
 isEmpty(BOOST_THREAD_LIB_SUFFIX) {
     BOOST_THREAD_LIB_SUFFIX = $$BOOST_LIB_SUFFIX
-}
-
-isEmpty(BDB_LIB_PATH) {
-    macx:BDB_LIB_PATH = /usr/local/Cellar/berkeley-db/5.3.21/lib/
-}
-
-isEmpty(BDB_LIB_SUFFIX) {
-    macx:BDB_LIB_SUFFIX = -5.3
-}
-
-isEmpty(BDB_INCLUDE_PATH) {
-    macx:BDB_INCLUDE_PATH = /usr/local/Cellar/berkeley-db/5.3.21/include/
-}
-
-isEmpty(BOOST_LIB_PATH) {
-    macx:BOOST_LIB_PATH = /usr/local/Cellar/boost/1.55.0/lib/
-}
-
-isEmpty(BOOST_INCLUDE_PATH) {
-    macx:BOOST_LIB_PATH = /usr/local/Cellar/boost/1.55.0/include/
-}
-
-isEmpty(OPENSSL_INCLUDE_PATH) {
-    macx:OPENSSL_INCLUDE_PATH = /usr/local/Cellar/openssl/1.0.1f/include/
-}
-
-isEmpty(OPENSSL_LIB_PATH) {
-    macx:OPENSSL_LIB_PATH = /usr/local/Cellar/openssl/1.0.1f/lib/
 }
 
 windows:LIBS += -lws2_32 -lshlwapi -lmswsock
@@ -363,7 +345,7 @@ LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB
 LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX
 # -lgdi32 has to happen after -lcrypto (see  #681)
 windows:LIBS += -lole32 -luuid -lgdi32
-LIBS += -lboost_system$$BOOST_LIB_SUFFIX -lboost_filesystem$$BOOST_LIB_SUFFIX -lboost_program_options$$BOOST_LIB_SUFFIX -lboost_thread$$BOOST_THREAD_LIB_SUFFIX
+LIBS += -lboost_system$$BOOST_LIB_SUFFIX -lboost_filesystem$$BOOST_LIB_SUFFIX -lboost_program_options$$BOOST_LIB_SUFFIX -lboost_thread-mt
 
 contains(RELEASE, 1) {
     !windows:!macx {
