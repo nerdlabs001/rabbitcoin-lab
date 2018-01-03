@@ -170,11 +170,11 @@ int main(int argc, char *argv[])
     // Application identification (must be set before OptionsModel is initialized,
     // as it is used to locate QSettings)
     app.setOrganizationName("RabbitCoin");
-    app.setOrganizationDomain("rabbitcoin-noexist-domain.org");
+    app.setOrganizationDomain("rabbitcoin.co");
     if(GetBoolArg("-testnet")) // Separate UI settings for testnet
-        app.setApplicationName("RabbitCoin-Qt-testnet");
+        app.setApplicationName("RabbitCoin-testnet");
     else
-        app.setApplicationName("RabbitCoin-Qt");
+        app.setApplicationName("RabbitCoin");
 
     // ... then GUI settings:
     OptionsModel optionsModel;
@@ -227,12 +227,11 @@ int main(int argc, char *argv[])
     if (GetBoolArg("-splash", true) && !GetBoolArg("-min"))
     {
         splash.show();
-        splash.setAutoFillBackground(false);
+        splash.setAutoFillBackground(true);
         splashref = &splash;
     }
 
     app.processEvents();
-
     app.setQuitOnLastWindowClosed(false);
 
     try

@@ -4,7 +4,7 @@
  * W.J. van der Laan 2011-2012
  * The Bitcoin Developers 2011-2012
  * The Litecoin Developers 2011-2013
- * The RabbitCoin Developers 2014
+ * The RabbitCoin Developers 2014-2018
 */
  
 #include "bitcoingui.h"
@@ -82,13 +82,8 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     QApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
 
-	//specify a new font.
-//	QFont newFont("Comic Sans MS", 10);
-#ifdef Q_WS_MAC
-	QFont newFont("Lucida Grande", 12);
-#else
-  QFont newFont("Arial", 10);
-#endif
+	QFont newFont("Arial", 12);
+
 	//set font of application
 	QApplication::setFont(newFont);
     
@@ -355,19 +350,22 @@ void BitcoinGUI::createToolBars()
 {
     QToolBar *toolbar = addToolBar(tr("Tabs toolbar"));
     toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    toolbar->setMovable(false);
     toolbar->addAction(overviewAction);
     toolbar->addAction(sendCoinsAction);
     toolbar->addAction(receiveCoinsAction);
     toolbar->addAction(historyAction);
     toolbar->addAction(addressBookAction);
     toolbar->addAction(miningAction);
+    toolbar->setFixedSize(QSize(500, 50));
+
 #ifdef FIRST_CLASS_MESSAGING
     toolbar->addAction(firstClassMessagingAction);
 #endif
 
-    QToolBar *toolbar2 = addToolBar(tr("Actions toolbar"));
-    toolbar2->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    toolbar2->addAction(exportAction);
+//    QToolBar *toolbar2 = addToolBar(tr("Actions toolbar"));
+//    toolbar2->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+//    toolbar2->addAction(exportAction);
 }
 
 void BitcoinGUI::setClientModel(ClientModel *clientModel)
