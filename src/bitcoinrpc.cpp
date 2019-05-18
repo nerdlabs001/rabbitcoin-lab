@@ -1549,6 +1549,7 @@ Value listsinceblock(const Array& params, bool fHelp)
     return ret;
 }
 
+#if 0
 Value gettransaction(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
@@ -1578,6 +1579,73 @@ Value gettransaction(const Array& params, bool fHelp)
     Array details;
     ListTransactions(wtx, "*", 0, false, details);
     entry.push_back(Pair("details", details));
+
+    return entry;
+}
+#endif
+
+extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, json_spirit::Object& entry);
+
+Value gettransaction(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "gettransaction <txid>\n"
+            "Get detailed information about <txid>");
+
+    uint256 hash;
+    hash.SetHex(params[0].get_str());
+
+    Object entry;
+
+    if (pwalletMain->mapWallet.count(hash))
+    {
+        const CWalletTx& wtx = pwalletMain->mapWallet[hash];
+
+        TxToJSON(wtx, 0, entry);
+
+        int64_t nCredit = wtx.GetCredit();
+        int64_t nDebit = wtx.GetDebit();
+        int64_t nNet = nCredit - nDebit;
+        int64_t nFee = (wtx.IsFromMe() ? wtx.GetValueOut() - nDebit : 0);
+
+        entry.push_back(Pair("amount", ValueFromAmount(nNet - nFee)));
+        if (wtx.IsFromMe())
+            entry.push_back(Pair("fee", ValueFromAmount(nFee)));
+
+        WalletTxToJSON(wtx, entry);
+
+        Array details;
+        ListTransactions(pwalletMain->mapWallet[hash], "*", 0, false, details);
+        entry.push_back(Pair("details", details));
+    }
+    else
+    {
+        CTransaction tx;
+        uint256 hashBlock = 0;
+        if (GetTransaction(hash, tx, hashBlock))
+        {
+            TxToJSON(tx, 0, entry);
+            if (hashBlock == 0)
+                entry.push_back(Pair("confirmations", 0));
+            else
+            {
+                entry.push_back(Pair("blockhash", hashBlock.GetHex()));
+                map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(hashBlock);
+                if (mi != mapBlockIndex.end() && (*mi).second)
+                {
+                    CBlockIndex* pindex = (*mi).second;
+                    if (pindex->IsInMainChain())
+                        entry.push_back(Pair("confirmations", 1 + nBestHeight - pindex->nHeight));
+                    else
+                        entry.push_back(Pair("confirmations", 0));
+                }
+            }
+        }
+        else
+        throw JSONRPCError(-5, "Invalid or non-wallet transaction id");
+        //    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available about transaction");
+    }
 
     return entry;
 }
@@ -2501,7 +2569,7 @@ int ReadHTTPStatus(std::basic_istream<char>& stream, int &proto)
 int ReadHTTPHeader(std::basic_istream<char>& stream, map<string, string>& mapHeadersRet)
 {
     int nLen = 0;
-    loop
+    while(true)
     {
         string str;
         std::getline(stream, str);
@@ -3040,7 +3108,7 @@ void ThreadRPCServer3(void* parg)
     AcceptedConnection *conn = (AcceptedConnection *) parg;
 
     bool fRun = true;
-    loop {
+    while(true) {
         if (fShutdown || !fRun)
         {
             conn->close();
